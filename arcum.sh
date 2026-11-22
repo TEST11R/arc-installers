@@ -72,7 +72,7 @@ if [[ $# -eq 1 ]]; then
   shift
 else
   read -r -s -p "Bulk enrollment token (read-only, max 100 servers): " TOKEN </dev/tty
-  printf "\\n"
+  printf "\n"
 fi
 [[ ${#TOKEN} -ge 20 && ${#TOKEN} -le 100 ]] || fail "Enrollment token length is invalid."
 export ARCUM_ENROLLMENT_TOKEN="$TOKEN"
