@@ -7,7 +7,7 @@ This repository contains the single-file Linux fleet installer for Arcum Connect
 Run this single command on each target VPS (replace the token placeholder with the owner-issued bulk token):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/TEST11R/arc-installers/d38e92b5c04d094ace6b972d4633e6aa970451b6/arcum.sh -o /tmp/arcum.sh && sudo bash /tmp/arcum.sh 'YOUR_BULK_ENROLLMENT_TOKEN'
+curl -fsSL https://raw.githubusercontent.com/TEST11R/arc-installers/d2b9efaffeb6e03ab3bd0e007c76826e865aac10/arcum.sh -o /tmp/arcum.sh && sudo bash /tmp/arcum.sh 'YOUR_BULK_ENROLLMENT_TOKEN'
 ```
 
 When already logged in as root, omit `sudo` before `bash`. The script also supports running without an argument and will prompt with terminal echo disabled. No API URL, hostname, IP, GitHub credential, or other option is required. Passing the token inline exposes it briefly in shell history and process arguments; use a short-lived bulk token and avoid shared multi-user hosts.
@@ -44,3 +44,8 @@ The installer is safe to rerun. If the machine is already enrolled, it reuses th
 - The enrollment token is entered invisibly and is not written to the service environment file or shell arguments. The returned machine credential is stored in the private connector state file.
 
 This installer is for the current Arcum Terminal API 0.4.0 / Connector 0.4.9 release. The public API pointer and signed payload must be updated together for future releases.
+
+
+## Service recovery fix
+
+The current pinned release writes unquoted `WorkingDirectory` and `EnvironmentFile` paths in the user service unit, as required by systemd. Rerunning the installer on an enrolled host reuses its existing read-only identity and reconciles the service without consuming another enrollment registration.
