@@ -4,8 +4,8 @@ set -Eeuo pipefail
 # Arcum fleet connector installer: one fixed HTTPS API pointer; unique identity per host.
 readonly API_URL="https://96.62.250.27"
 readonly API_VERSION="0.4.0"
-readonly INSTALL_HOME="/var/lib/arcum-connector"
-readonly SERVICE_USER="arcum-connector"
+readonly INSTALL_HOME="/var/lib/arcum-fleet-connector"
+readonly SERVICE_USER="arcum-fleet-connector"
 readonly PAYLOAD_SHA256="a876aeea3a6f5be85b91ea25baa8f41271c968edd2aa17f42b4d01f5ca01ea75"
 readonly SIGNING_KEY_SHA256="793cf9a959b31a29f0f2e285bcdb5de6474a177b06bc59c232b859fb5ef2271d"
 readonly SELF="$(readlink -f "$0")"
