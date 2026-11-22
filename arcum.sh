@@ -66,8 +66,14 @@ if ! python3 -m venv "$TMP/venv-probe" >/dev/null 2>&1; then
 fi
 rm -rf "$TMP/venv-probe"
 
-read -r -s -p "Bulk enrollment token (read-only, max 100 servers): " TOKEN </dev/tty
-printf "\n"
+if [[ $# -gt 1 ]]; then fail "Usage: arcum.sh [BULK_ENROLLMENT_TOKEN]"; fi
+if [[ $# -eq 1 ]]; then
+  TOKEN="$1"
+  shift
+else
+  read -r -s -p "Bulk enrollment token (read-only, max 100 servers): " TOKEN </dev/tty
+  printf "\\n"
+fi
 [[ ${#TOKEN} -ge 20 && ${#TOKEN} -le 100 ]] || fail "Enrollment token length is invalid."
 export ARCUM_ENROLLMENT_TOKEN="$TOKEN"
 unset TOKEN
