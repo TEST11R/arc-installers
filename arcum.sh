@@ -228,6 +228,7 @@ printf "Service: %s\n" "$UNIT"
 printf "Recovery: enabled on process failure and host reboot; network/API outages retry automatically.\n"
 printf "Policy: read-only enrollment; each server receives an independent machine identity.\n"
 printf "State: %s/installation/state.json\n" "$INSTALL_HOME"
+exit 0
 
 __ARCUM_BUNDLE_BELOW__
 H4sICCDzAmsC/3VwZGF0ZWQudGFyAOy6VXAdwbYlKGZGi5n5SEfSkcUsWWAxWczMzGAxM6MtZrCY
