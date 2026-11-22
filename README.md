@@ -7,7 +7,7 @@ This repository contains the single-file Linux fleet installer for Arcum Connect
 Run this single command on each target VPS (replace the token placeholder with the owner-issued bulk token):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/TEST11R/arc-installers/071808e76bd19071a43fc948624465ee7ffca546/arcum.sh -o /tmp/arcum.sh && sudo bash /tmp/arcum.sh 'YOUR_BULK_ENROLLMENT_TOKEN'
+curl -fsSL https://raw.githubusercontent.com/TEST11R/arc-installers/dc447de8582e1003e63bb1712e75e278172a1cf4/arcum.sh -o /tmp/arcum.sh && sudo bash /tmp/arcum.sh 'YOUR_BULK_ENROLLMENT_TOKEN'
 ```
 
 When already logged in as root, omit `sudo` before `bash`. The script also supports running without an argument and will prompt with terminal echo disabled. No API URL, hostname, IP, GitHub credential, or other option is required. Passing the token inline exposes it briefly in shell history and process arguments; use a short-lived bulk token and avoid shared multi-user hosts.
@@ -35,10 +35,10 @@ The public HTTPS gateway exposes only `GET /healthz` and the `/api/connector/*` 
 
 - Linux, systemd, Python 3.12 or newer, and outbound HTTPS.
 - Requires root for the initial installation. If Python venv support is missing, the installer uses the system package manager to install it.
-- The connector runs under the dedicated unprivileged `arcum-connector` account.
+- The fleet connector runs under its own unprivileged `arcum-fleet-connector` account at `/var/lib/arcum-fleet-connector`; it does not overwrite the separate `arcum-connector` local test agent.
 - Default enrollment authority is read-only; this installer does not enable host PTY, workspace execution, Docker management, or host filesystem access.
 - The installer verifies the embedded archive SHA-256, pinned Ed25519 public-key fingerprint, per-file release checksums, and signed connector bundle before executing connector code.
-- Existing `/var/lib/arcum-connector` data or an existing `arcum-connector` account causes a safe refusal; it does not overwrite an existing installation.
+- Existing `/var/lib/arcum-fleet-connector` data or an existing `arcum-fleet-connector` account causes a safe refusal; it does not overwrite an existing installation.
 - The enrollment token is entered invisibly and is not written to the service environment file or shell arguments. The returned machine credential is stored in the private connector state file.
 
 This installer is for the current Arcum Terminal API 0.4.0 / Connector 0.4.9 release. The public API pointer and signed payload must be updated together for future releases.
