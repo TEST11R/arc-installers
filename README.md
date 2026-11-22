@@ -7,10 +7,10 @@ This repository contains the single-file Linux fleet installer for Arcum Connect
 Run this single command on each target VPS (replace the token placeholder with the owner-issued bulk token):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/TEST11R/arc-installers/main/arcum.sh -o /tmp/arcum.sh && sudo bash /tmp/arcum.sh 'YOUR_BULK_ENROLLMENT_TOKEN'
+curl -fsSL https://raw.githubusercontent.com/TEST11R/arc-installers/071808e76bd19071a43fc948624465ee7ffca546/arcum.sh -o /tmp/arcum.sh && sudo bash /tmp/arcum.sh 'YOUR_BULK_ENROLLMENT_TOKEN'
 ```
 
-The script also supports running without an argument and will prompt with terminal echo disabled. No API URL, hostname, IP, GitHub credential, or other option is required. Passing the token inline exposes it briefly in shell history and process arguments; use a short-lived bulk token and avoid shared multi-user hosts.
+When already logged in as root, omit `sudo` before `bash`. The script also supports running without an argument and will prompt with terminal echo disabled. No API URL, hostname, IP, GitHub credential, or other option is required. Passing the token inline exposes it briefly in shell history and process arguments; use a short-lived bulk token and avoid shared multi-user hosts.
 
 ## Issue one fleet token in Arcum
 
