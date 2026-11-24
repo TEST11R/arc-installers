@@ -2,23 +2,32 @@
 
 The ZIP is stored as base64 text so it can be retrieved from GitHub's raw file host and reconstructed byte-for-byte.
 
-Pinned bundle commit: 35c81b6c67eef24ab891bdd9f0d8882b355baa60
+Pinned bundle commit: 12c498f640e6281ddf855690f6b3a0d534fbf6a6
 
-Download and unpack on a fresh Debian/Ubuntu VPS:
+Download and unpack:
 
 ```bash
-sudo apt-get update
-sudo apt-get install -y curl ca-certificates unzip
-curl -fsSL https://raw.githubusercontent.com/TEST11R/arc-installers/35c81b6c67eef24ab891bdd9f0d8882b355baa60/downloads/Arcum-Sentinel-dVPN-Manager-Installer.zip.b64 | base64 -d > Arcum-Sentinel-dVPN-Manager-Installer.zip
-unzip -o Arcum-Sentinel-dVPN-Manager-Installer.zip
-sudo ./install.sh
+curl -fsSL https://raw.githubusercontent.com/TEST11R/arc-installers/12c498f640e6281ddf855690f6b3a0d534fbf6a6/downloads/Arcum-Sentinel-dVPN-Manager-Installer.zip.b64 | base64 -d > Arcum-Sentinel-dVPN-Manager-Installer.zip
+python3 -m zipfile -e Arcum-Sentinel-dVPN-Manager-Installer.zip .
+sudo bash ./install.sh
 ```
 
 Expected ZIP SHA-256:
-`1114758ee901874de57eb30f19ce58eef39ffcbe0ce0aa7dcb79ee3aa9af2089`
+`07b88654e9963e9dab70b572c3b935e83f2fd392e7ab0e6725f9e14b2b4a8584`
 
-Debian 13 (Trixie) uses the upstream source installer and is explicitly marked experimental because the upstream project documents generated packages for Debian 11/12, not Debian 13. The installer does not add an Ubuntu PPA to Debian 13.
+The installer automatically downloads and installs the Foxinou PPA signing key, writes a repository entry with a dedicated `signed-by` keyring, selects the correct suite, refreshes APT, and installs `dvpn-node-manager`.
 
-Upstream project: https://github.com/sentinelgrowthdao/dvpn-node-manager
+Supported mappings documented by the upstream project:
+- Ubuntu 20.04 Focal -> `focal`
+- Ubuntu 22.04 Jammy -> `jammy`
+- Ubuntu 24.04 Noble -> `noble`
+- Debian 11 Bullseye -> `focal`
+- Debian 12 Bookworm -> `jammy`
 
-This installs/configures a new manager/node; it does not migrate an existing node, wallet, or keys.
+Debian 13 (Trixie) is rejected because it is not in the upstream PPA's documented package matrix. The installer does not force an Ubuntu PPA onto Debian 13.
+
+If APT update fails because the VPS's base Debian repositories are broken, the installer stops before package installation and leaves those base sources untouched.
+
+Upstream project and installation instructions: https://github.com/sentinelgrowthdao/dvpn-node-manager
+
+This installs the manager package for a new node; it does not migrate an existing node, wallet, or keys.
