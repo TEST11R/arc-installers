@@ -8,7 +8,7 @@ SOURCE="/etc/apt/sources.list.d/foxinou-dvpn-node-manager.list"
 
 log() { printf '\n[Arcum Sentinel] %s\n' "$*"; }
 die() { printf '\n[ERROR] %s\n' "$*" >&2; exit 1; }
-trap 'rc=$?; printf "\n[ERROR] Installer stopped at line %s (exit %s). No automatic repository or security-source changes were made.\n" "$LINENO" "$rc" >&2; exit "$rc"' ERR
+trap 'rc=$?; printf "\n[ERROR] Installer stopped at line %s (exit %s). Review any installer changes to retired bullseye-backports sources; backups are retained.\n" "$LINENO" "$rc" >&2; exit "$rc"' ERR
 
 [ "$(id -u)" -eq 0 ] || die "Run as root: curl ... | sudo bash"
 [ -r /etc/os-release ] || die "Cannot identify this Linux distribution."
@@ -27,6 +27,59 @@ esac
 
 export DEBIAN_FRONTEND=noninteractive
 log "Detected ${PRETTY_NAME} ($arch); PPA suite: $suite"
+
+# Debian 11 backports has been retired. Disable only that obsolete suite;
+# keep bullseye, bullseye-updates, and bullseye-security untouched.
+if [ "${ID:-}:${VERSION_ID:-}" = "debian:11" ]; then
+  log "Checking for the retired bullseye-backports suite."
+  python3 - <<'PY'
+from pathlib import Path
+from datetime import datetime
+import re, shutil
+
+files = [Path("/etc/apt/sources.list")]
+d = Path("/etc/apt/sources.list.d")
+if d.exists():
+    files += list(d.glob("*.list")) + list(d.glob("*.sources"))
+stamp = datetime.now().strftime("%Y%m%d%H%M%S")
+for p in files:
+    if not p.is_file():
+        continue
+    try:
+        original = p.read_text()
+    except (OSError, UnicodeError):
+        continue
+    updated = original
+    if p.suffix == ".sources":
+        paragraphs = re.split(r"(\n\s*\n)", original)
+        for i in range(0, len(paragraphs), 2):
+            block = paragraphs[i]
+            if re.search(r"(?im)^Suites:\s*.*\bbullseye-backports\b", block):
+                m = re.search(r"(?im)^(Suites:\s*)(.*)$", block)
+                suites = m.group(2).split()
+                remaining = [s for s in suites if s != "bullseye-backports"]
+                if remaining:
+                    block = block[:m.start(2)] + " ".join(remaining) + block[m.end(2):]
+                elif not re.search(r"(?im)^Enabled:\s*no\s*$", block):
+                    block = block.rstrip() + "\nEnabled: no\n"
+                paragraphs[i] = block
+        updated = "".join(paragraphs)
+    else:
+        lines = []
+        for line in original.splitlines(keepends=True):
+            if "bullseye-backports" in line and not line.lstrip().startswith("#"):
+                lines.append("# Disabled by Arcum Sentinel installer (retired Debian 11 backports): " + line)
+            else:
+                lines.append(line)
+        updated = "".join(lines)
+    if updated != original:
+        backup = p.with_name(p.name + ".arcum-backup-" + stamp)
+        shutil.copy2(p, backup)
+        p.write_text(updated)
+        print(f"Disabled retired bullseye-backports in {p}; backup: {backup}")
+PY
+fi
+
 log "Refreshing package indexes."
 apt-get update
 
