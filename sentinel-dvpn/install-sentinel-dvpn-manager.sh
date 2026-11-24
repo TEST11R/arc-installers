@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# Arcum: install Sentinel dVPN Node Manager (Debian 11/12, Ubuntu 20.04/22.04/24.04)
+# Arcum: install Sentinel dVPN Node Manager (Debian 11/12/13, Ubuntu 20.04/22.04/24.04)
 [[ ${EUID} -eq 0 ]] || { echo "Run as root: sudo $0"; exit 1; }
 command -v apt-get >/dev/null || { echo "This installer requires apt."; exit 1; }
 . /etc/os-release
@@ -9,7 +9,7 @@ case "${ID:-}" in
   debian)
     case "${VERSION_ID:-}" in
       11) ppa_suite=focal ;;
-      12) ppa_suite=jammy ;;
+      12|13) ppa_suite=jammy ;;
       *) echo "Unsupported Debian release: ${VERSION_ID:-unknown}"; exit 1 ;;
     esac
     ;;
