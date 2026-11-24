@@ -28,13 +28,15 @@ case "${ID:-}:${VERSION_ID:-}" in
 esac
 
 export DEBIAN_FRONTEND=noninteractive
+# Restrict APT to the VPS native architecture; some ARM cloud images register amd64 as foreign while using ARM-only mirrors.
+APT_ARCH_OPTS=(-o "APT::Architectures=$arch")
 log "Detected ${PRETTY_NAME} ($arch); PPA suite: $suite"
 
 log "Refreshing package indexes."
-apt-get update
+apt-get "${APT_ARCH_OPTS[@]}" update
 
 log "Installing prerequisite packages."
-apt-get install -y ca-certificates curl gnupg
+apt-get "${APT_ARCH_OPTS[@]}" install -y ca-certificates curl gnupg
 
 log "Downloading and verifying the Foxinou PPA signing key."
 tmp="$(mktemp -d)"
@@ -49,10 +51,10 @@ printf 'deb [signed-by=%s] http://ppa.launchpad.net/foxinou/dvpn-node-manager/ub
 chmod 0644 "$SOURCE"
 
 log "Refreshing package indexes with the verified PPA."
-apt-get update
+apt-get "${APT_ARCH_OPTS[@]}" update
 
 log "Installing Docker and Sentinel dVPN Node Manager."
-apt-get install -y docker.io dvpn-node-manager
+apt-get "${APT_ARCH_OPTS[@]}" install -y docker.io dvpn-node-manager
 
 log "Enabling Docker."
 systemctl enable --now docker
