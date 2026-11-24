@@ -1,0 +1,1 @@
+deb [signed-by=/etc/apt/keyrings/foxinou-dvpn-node-manager.gpg] http://ppa.launchpad.net/foxinou/dvpn-node-manager/ubuntu jammy main
