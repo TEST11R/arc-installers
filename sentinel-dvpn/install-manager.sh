@@ -19,66 +19,16 @@ case "$arch" in amd64|arm64) ;; *) die "Unsupported CPU architecture: $arch. Sup
 
 suite=""
 case "${ID:-}:${VERSION_ID:-}" in
-  debian:11) suite="focal" ;;
   debian:12) suite="jammy" ;;
   ubuntu:24.04) suite="noble" ;;
-  *) die "Unsupported OS: ${PRETTY_NAME:-unknown}. Supported by this installer: Debian 11, Debian 12, and Ubuntu 24.04." ;;
+  debian:11)
+    die "Debian 11 reached end-of-life on 2026-08-31. Its security package URLs are returning 404, so this installer will not bypass or disable security repositories. Reinstall/upgrade this VPS to Debian 12, then rerun the command." ;;
+  *)
+    die "Unsupported OS: ${PRETTY_NAME:-unknown}. Supported: Debian 12 and Ubuntu 24.04." ;;
 esac
 
 export DEBIAN_FRONTEND=noninteractive
 log "Detected ${PRETTY_NAME} ($arch); PPA suite: $suite"
-
-# Debian 11 backports has been retired. Disable only that obsolete suite;
-# keep bullseye, bullseye-updates, and bullseye-security untouched.
-if [ "${ID:-}:${VERSION_ID:-}" = "debian:11" ]; then
-  log "Checking for the retired bullseye-backports suite."
-  python3 - <<'PY'
-from pathlib import Path
-from datetime import datetime
-import re, shutil
-
-files = [Path("/etc/apt/sources.list")]
-d = Path("/etc/apt/sources.list.d")
-if d.exists():
-    files += list(d.glob("*.list")) + list(d.glob("*.sources"))
-stamp = datetime.now().strftime("%Y%m%d%H%M%S")
-for p in files:
-    if not p.is_file():
-        continue
-    try:
-        original = p.read_text()
-    except (OSError, UnicodeError):
-        continue
-    updated = original
-    if p.suffix == ".sources":
-        paragraphs = re.split(r"(\n\s*\n)", original)
-        for i in range(0, len(paragraphs), 2):
-            block = paragraphs[i]
-            if re.search(r"(?im)^Suites:\s*.*\bbullseye-backports\b", block):
-                m = re.search(r"(?im)^(Suites:\s*)(.*)$", block)
-                suites = m.group(2).split()
-                remaining = [s for s in suites if s != "bullseye-backports"]
-                if remaining:
-                    block = block[:m.start(2)] + " ".join(remaining) + block[m.end(2):]
-                elif not re.search(r"(?im)^Enabled:\s*no\s*$", block):
-                    block = block.rstrip() + "\nEnabled: no\n"
-                paragraphs[i] = block
-        updated = "".join(paragraphs)
-    else:
-        lines = []
-        for line in original.splitlines(keepends=True):
-            if "bullseye-backports" in line and not line.lstrip().startswith("#"):
-                lines.append("# Disabled by Arcum Sentinel installer (retired Debian 11 backports): " + line)
-            else:
-                lines.append(line)
-        updated = "".join(lines)
-    if updated != original:
-        backup = p.with_name(p.name + ".arcum-backup-" + stamp)
-        shutil.copy2(p, backup)
-        p.write_text(updated)
-        print(f"Disabled retired bullseye-backports in {p}; backup: {backup}")
-PY
-fi
 
 log "Refreshing package indexes."
 apt-get update
