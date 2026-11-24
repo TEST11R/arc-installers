@@ -2,17 +2,23 @@
 
 The ZIP is stored as base64 text so it can be retrieved from GitHub's raw file host and reconstructed byte-for-byte.
 
-Pinned bundle commit: d17dba8ae4dcfb5b7233c5fb20e7918974cb3184
+Pinned bundle commit: 35c81b6c67eef24ab891bdd9f0d8882b355baa60
 
-Download and unpack on a fresh Ubuntu amd64 VPS:
+Download and unpack on a fresh Debian/Ubuntu VPS:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/TEST11R/arc-installers/d17dba8ae4dcfb5b7233c5fb20e7918974cb3184/downloads/Arcum-Sentinel-dVPN-Manager-Installer.zip.b64 | base64 -d > Arcum-Sentinel-dVPN-Manager-Installer.zip
-unzip Arcum-Sentinel-dVPN-Manager-Installer.zip
+sudo apt-get update
+sudo apt-get install -y curl ca-certificates unzip
+curl -fsSL https://raw.githubusercontent.com/TEST11R/arc-installers/35c81b6c67eef24ab891bdd9f0d8882b355baa60/downloads/Arcum-Sentinel-dVPN-Manager-Installer.zip.b64 | base64 -d > Arcum-Sentinel-dVPN-Manager-Installer.zip
+unzip -o Arcum-Sentinel-dVPN-Manager-Installer.zip
 sudo ./install.sh
 ```
 
 Expected ZIP SHA-256:
-`a5efe45ca9e76013ae910bc1018ced348ec354aa97bd0ee8018d6055964f88b6`
+`1114758ee901874de57eb30f19ce58eef39ffcbe0ce0aa7dcb79ee3aa9af2089`
 
-This installs the manager from its upstream PPA; it does not migrate any existing node, wallet, or keys.
+Debian 13 (Trixie) uses the upstream source installer and is explicitly marked experimental because the upstream project documents generated packages for Debian 11/12, not Debian 13. The installer does not add an Ubuntu PPA to Debian 13.
+
+Upstream project: https://github.com/sentinelgrowthdao/dvpn-node-manager
+
+This installs/configures a new manager/node; it does not migrate an existing node, wallet, or keys.
