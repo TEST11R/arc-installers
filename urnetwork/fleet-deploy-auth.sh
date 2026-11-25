@@ -101,7 +101,7 @@ if (( SKIP_INSTALL == 0 )); then
 fi
 
 echo "Step 2/4: allowing the URnetwork extender through an active UFW firewall..."
-ansible "$GROUP" -i "$INVENTORY" "${ANSIBLE_LIMIT_ARGS[@]}" -b -m shell \\
+ansible "$GROUP" -i "$INVENTORY" "${ANSIBLE_LIMIT_ARGS[@]}" -b -m shell \
   -a 'set -eu; if ! command -v ufw >/dev/null 2>&1; then echo UFW_NOT_INSTALLED_SKIP; elif ufw status | grep -q "^Status: active"; then if ufw status | grep -Eq "^[[:space:]]*443/tcp[[:space:]]+ALLOW"; then echo UFW_TCP443_ALREADY_ALLOWED; else ufw allow 443/tcp comment "URnetwork extender"; fi; else echo UFW_INACTIVE_NO_RULE_NEEDED; fi' -f 5
 
 echo "Step 3/4: preparing identity directory and copying the authenticated provider credential..."
