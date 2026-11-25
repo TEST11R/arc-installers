@@ -3,7 +3,12 @@ set -Eeuo pipefail
 umask 077
 
 BASE="https://raw.githubusercontent.com/TEST11R/arc-installers/main/urnetwork"
-TMP="$(mktemp -d)"
+# The default /tmp on some VPSs is a small tmpfs (smaller than the provider archive).
+# Put every temporary download, including the nested clean installer archive, on disk.
+TMP_BASE="${URNETWORK_TMPDIR:-/var/tmp/arcum-urnetwork}"
+install -d -o root -g root -m 0700 "$TMP_BASE"
+export TMPDIR="$TMP_BASE"
+TMP="$(mktemp -d "$TMP_BASE/reinstall.XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT
 TOKEN="$TMP/jwt"
 CLEAN="$TMP/clean-install-urnetwork.sh"
