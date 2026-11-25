@@ -96,7 +96,7 @@ if (( YES == 0 )); then
 fi
 
 if (( SKIP_INSTALL == 0 )); then
-  echo "Step 1/3: clean-installing the pinned official URnetwork client..."
+  echo "Step 1/4: clean-installing the pinned official URnetwork client..."
   ansible "$GROUP" -i "$INVENTORY" "${ANSIBLE_LIMIT_ARGS[@]}" -b -m script -a "$INSTALLER" -f 5
 fi
 
