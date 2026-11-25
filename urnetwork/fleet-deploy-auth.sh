@@ -72,18 +72,18 @@ openssl enc -d -aes-256-cbc -pbkdf2 -iter 600000 -salt \
 chmod 600 "$JWT_FILE"
 [[ -s "$JWT_FILE" ]] || { echo "Decrypted JWT is empty; aborting." >&2; exit 1; }
 
-TARGET="$GROUP"
-[[ -n "$LIMIT" ]] && TARGET="$GROUP:$LIMIT"
+ANSIBLE_LIMIT_ARGS=()
+[[ -n "$LIMIT" ]] && ANSIBLE_LIMIT_ARGS=(-l "$LIMIT")
 export ANSIBLE_HOST_KEY_CHECKING="${ANSIBLE_HOST_KEY_CHECKING:-False}"
 export ANSIBLE_DISPLAY_ARGS_TO_STDOUT=False
 
-echo "URnetwork deployment target: $TARGET"
+echo "URnetwork deployment target: $GROUP${LIMIT:+ (limit: $LIMIT)}"
 echo "Inventory: $INVENTORY"
 echo "Clean reinstall: $([[ $SKIP_INSTALL -eq 0 ]] && echo yes || echo no)"
 echo "Credential: encrypted file decrypted and validated (value not displayed)"
 echo
 echo "Preflight: checking SSH connectivity..."
-ansible "$TARGET" -i "$INVENTORY" -m ping -f 10
+ansible "$GROUP" -i "$INVENTORY" "${ANSIBLE_LIMIT_ARGS[@]}" -m ping -f 10
 
 if (( YES == 0 )); then
   echo
@@ -97,15 +97,15 @@ fi
 
 if (( SKIP_INSTALL == 0 )); then
   echo "Step 1/3: clean-installing the pinned official URnetwork client..."
-  ansible "$TARGET" -i "$INVENTORY" -b -m script -a "$INSTALLER" -f 5
+  ansible "$GROUP" -i "$INVENTORY" "${ANSIBLE_LIMIT_ARGS[@]}" -b -m script -a "$INSTALLER" -f 5
 fi
 
 echo "Step 2/3: copying the authenticated provider credential..."
-ansible "$TARGET" -i "$INVENTORY" -b -m copy \
+ansible "$GROUP" -i "$INVENTORY" "${ANSIBLE_LIMIT_ARGS[@]}" -b -m copy \
   -a "src=$JWT_FILE dest=/root/.urnetwork/jwt owner=root group=root mode=0600" -f 5
 
 echo "Step 3/3: starting provider and enabling boot start..."
-ansible "$TARGET" -i "$INVENTORY" -b -m shell \
+ansible "$GROUP" -i "$INVENTORY" "${ANSIBLE_LIMIT_ARGS[@]}" -b -m shell \
   -a 'set -eu; T=/root/.local/share/urnetwork-provider/bin/urnet-tools; test -x "$T"; "$T" auto-start on; "$T" start; "$T" status' -f 5
 
 echo
