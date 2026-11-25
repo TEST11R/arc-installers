@@ -51,22 +51,22 @@ This installer is for the current Arcum Terminal API 0.4.0 / Connector 0.4.9 rel
 The current pinned release writes valid unquoted `WorkingDirectory` and `EnvironmentFile` paths in the user service unit, and exits cleanly after completion. Rerunning the installer on an enrolled host reuses its existing read-only identity and reconciles the service without consuming another enrollment registration.
 
 
-## URnetwork provider clean reinstall
+## URnetwork full clean reinstall
 
-This installer removes the existing Linux provider client/service, preserves the current user's `~/.urnetwork` identity and JWT, and installs a fresh copy using URnetwork's official upstream Linux installer. It deliberately does not authenticate or start the provider; this lets the fleet operator distribute the intended JWT before starting nodes.
+This is a destructive reset for the current Linux account. It removes the existing URnetwork provider client, matching systemd user/system services, the old JWT, and the full `~/.urnetwork` identity directory. It then installs the latest provider from URnetwork's official release feed. The new provider is left stopped and unauthenticated.
 
-Run as the Linux account that should own the provider (do not use `sudo`):
+Run as the Linux account that owns the old provider (do not use `sudo`):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/TEST11R/arc-installers/5f18da87e5c5ff6b8f2210ecee1d1740fc4cba2a/urnetwork/clean-install-urnetwork.sh | sh
+curl -fsSL https://raw.githubusercontent.com/TEST11R/arc-installers/eedee4477c08fe7f3e1ce00fa8adccb97f513957/urnetwork/clean-install-urnetwork.sh | sh
 ```
 
-After authentication or secure JWT deployment, start it with:
+**Warning:** this permanently deletes that server's local URnetwork identity/JWT. It does not affect identities on other servers or your URnetwork account. Authenticate the server again after installation:
 
 ```bash
-urnet-tools auto-start on
+urnetwork auth
 urnet-tools start
 urnet-tools status
 ```
 
-The script uses URnetwork's current `urnetwork/build` release feed via the official installer, rather than copying an old provider archive into this repository. The official release archive and upstream installer perform release selection and integrity checks. The identity directory is preserved by default; deleting it would remove that server's miner identity and is intentionally not automated.
+The script checks that a legacy system-level service points to the exact URnetwork install path before removing it; unrelated systemd units are not touched.
