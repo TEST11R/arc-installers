@@ -49,3 +49,24 @@ This installer is for the current Arcum Terminal API 0.4.0 / Connector 0.4.9 rel
 ## Service recovery fix
 
 The current pinned release writes valid unquoted `WorkingDirectory` and `EnvironmentFile` paths in the user service unit, and exits cleanly after completion. Rerunning the installer on an enrolled host reuses its existing read-only identity and reconciles the service without consuming another enrollment registration.
+
+
+## URnetwork provider clean reinstall
+
+This installer removes the existing Linux provider client/service, preserves the current user's `~/.urnetwork` identity and JWT, and installs a fresh copy using URnetwork's official upstream Linux installer. It deliberately does not authenticate or start the provider; this lets the fleet operator distribute the intended JWT before starting nodes.
+
+Run as the Linux account that should own the provider (do not use `sudo`):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/TEST11R/arc-installers/5f18da87e5c5ff6b8f2210ecee1d1740fc4cba2a/urnetwork/clean-install-urnetwork.sh | sh
+```
+
+After authentication or secure JWT deployment, start it with:
+
+```bash
+urnet-tools auto-start on
+urnet-tools start
+urnet-tools status
+```
+
+The script uses URnetwork's current `urnetwork/build` release feed via the official installer, rather than copying an old provider archive into this repository. The official release archive and upstream installer perform release selection and integrity checks. The identity directory is preserved by default; deleting it would remove that server's miner identity and is intentionally not automated.
