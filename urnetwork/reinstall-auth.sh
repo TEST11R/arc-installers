@@ -63,7 +63,7 @@ echo "[5/6] Checking service and provider status..."
 SERVICE_STATE="$(systemctl --user is-active urnetwork.service)"
 SERVICE_ENABLED="$(systemctl --user is-enabled urnetwork.service)"
 STATUS_OUTPUT="$("$TOOLS" status 2>&1)"
-printf '%s\\n' "$STATUS_OUTPUT"
+printf '%s\n' "$STATUS_OUTPUT"
 echo "systemd service: $SERVICE_STATE"
 echo "boot enablement: $SERVICE_ENABLED"
 [[ "$SERVICE_STATE" == "active" ]] || { echo "Provider service is not active." >&2; exit 1; }
