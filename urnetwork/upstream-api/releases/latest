@@ -1,0 +1,10 @@
+{
+  "tag_name": "v2026.11.22-1105365180",
+  "assets": [
+    {
+      "name": "urnetwork-provider-2026.11.22-1105365180.tar.gz",
+      "browser_download_url": "https://github.com/urnetwork/build/releases/download/v2026.11.22-1105365180/urnetwork-provider-2026.11.22-1105365180.tar.gz",
+      "digest": "sha256:a40cddbe298637e9b9eeb6e5d31fe6079d1dc6f25b50a4e8c44b14de1bdc9726"
+    }
+  ]
+}
