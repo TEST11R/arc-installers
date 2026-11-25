@@ -58,7 +58,7 @@ This is a destructive reset for the current Linux account. It removes the existi
 Run as the Linux account that owns the old provider (do not use `sudo`):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/TEST11R/arc-installers/ca2e57838df915cc4332d6da865d9803e935d6bb/urnetwork/clean-install-urnetwork.sh | sh
+curl -fsSL https://raw.githubusercontent.com/TEST11R/arc-installers/7f2b51f4080992171a9947aff4cdf4628d7a730a/urnetwork/clean-install-urnetwork.sh | sh
 ```
 
 **Warning:** this permanently deletes that server's local URnetwork identity/JWT. It does not affect identities on other servers or your URnetwork account. Authenticate the server again after installation:
