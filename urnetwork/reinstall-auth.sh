@@ -46,10 +46,37 @@ TOOLS=/root/.local/share/urnetwork-provider/bin/urnet-tools
 "$TOOLS" auto-start on
 "$TOOLS" start
 
+DROPIN="/root/.config/systemd/user/urnetwork.service.d/10-arcum-restart.conf"
+install -d -o root -g root -m 0700 "$(dirname "$DROPIN")"
+cat > "$DROPIN" <<'EOF'
+[Service]
+Restart=on-failure
+RestartSec=30s
+EOF
+chmod 0600 "$DROPIN"
+systemctl --user daemon-reload
+systemctl --user enable urnetwork.service
+systemctl --user restart urnetwork.service
+sleep 3
+
 echo "[5/6] Checking service and provider status..."
-systemctl --user is-active urnetwork.service
-systemctl --user is-enabled urnetwork.service
-"$TOOLS" status
+SERVICE_STATE="$(systemctl --user is-active urnetwork.service)"
+SERVICE_ENABLED="$(systemctl --user is-enabled urnetwork.service)"
+STATUS_OUTPUT="$("$TOOLS" status 2>&1)"
+printf '%s\\n' "$STATUS_OUTPUT"
+echo "systemd service: $SERVICE_STATE"
+echo "boot enablement: $SERVICE_ENABLED"
+[[ "$SERVICE_STATE" == "active" ]] || { echo "Provider service is not active." >&2; exit 1; }
+[[ "$SERVICE_ENABLED" == "enabled" ]] || { echo "Provider service is not enabled at boot." >&2; exit 1; }
+grep -Eiq 'signed[[:space:]]*in[^[:alnum:]]*yes' <<<"$STATUS_OUTPUT" || {
+  echo "Signed-in state was not confirmed." >&2; exit 1;
+}
+grep -Eiq 'registered[^[:alnum:]]*yes' <<<"$STATUS_OUTPUT" || {
+  echo "Registered state was not confirmed." >&2; exit 1;
+}
+grep -Eiq 'running[^[:alnum:]]*(active|yes)' <<<"$STATUS_OUTPUT" || {
+  echo "Running state was not confirmed." >&2; exit 1;
+}
 
 echo "[6/6] Credential permissions:"
 stat -c '%a %U:%G %n' /root/.urnetwork/jwt
