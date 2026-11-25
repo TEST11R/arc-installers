@@ -100,7 +100,9 @@ if (( SKIP_INSTALL == 0 )); then
   ansible "$GROUP" -i "$INVENTORY" "${ANSIBLE_LIMIT_ARGS[@]}" -b -m script -a "$INSTALLER" -f 5
 fi
 
-echo "Step 2/3: copying the authenticated provider credential..."
+echo "Step 2/3: preparing identity directory and copying the authenticated provider credential..."
+ansible "$GROUP" -i "$INVENTORY" "${ANSIBLE_LIMIT_ARGS[@]}" -b -m file \
+  -a "path=/root/.urnetwork state=directory owner=root group=root mode=0700" -f 5
 ansible "$GROUP" -i "$INVENTORY" "${ANSIBLE_LIMIT_ARGS[@]}" -b -m copy \
   -a "src=$JWT_FILE dest=/root/.urnetwork/jwt owner=root group=root mode=0600" -f 5
 
