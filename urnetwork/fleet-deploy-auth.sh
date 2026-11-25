@@ -100,13 +100,17 @@ if (( SKIP_INSTALL == 0 )); then
   ansible "$GROUP" -i "$INVENTORY" "${ANSIBLE_LIMIT_ARGS[@]}" -b -m script -a "$INSTALLER" -f 5
 fi
 
-echo "Step 2/3: preparing identity directory and copying the authenticated provider credential..."
+echo "Step 2/4: allowing the URnetwork extender through an active UFW firewall..."
+ansible "$GROUP" -i "$INVENTORY" "${ANSIBLE_LIMIT_ARGS[@]}" -b -m shell \\
+  -a 'set -eu; if ! command -v ufw >/dev/null 2>&1; then echo UFW_NOT_INSTALLED_SKIP; elif ufw status | grep -q "^Status: active"; then if ufw status | grep -Eq "^[[:space:]]*443/tcp[[:space:]]+ALLOW"; then echo UFW_TCP443_ALREADY_ALLOWED; else ufw allow 443/tcp comment "URnetwork extender"; fi; else echo UFW_INACTIVE_NO_RULE_NEEDED; fi' -f 5
+
+echo "Step 3/4: preparing identity directory and copying the authenticated provider credential..."
 ansible "$GROUP" -i "$INVENTORY" "${ANSIBLE_LIMIT_ARGS[@]}" -b -m file \
   -a "path=/root/.urnetwork state=directory owner=root group=root mode=0700" -f 5
 ansible "$GROUP" -i "$INVENTORY" "${ANSIBLE_LIMIT_ARGS[@]}" -b -m copy \
   -a "src=$JWT_FILE dest=/root/.urnetwork/jwt owner=root group=root mode=0600" -f 5
 
-echo "Step 3/3: starting provider and enabling boot start..."
+echo "Step 4/4: starting provider and enabling boot start..."
 ansible "$GROUP" -i "$INVENTORY" "${ANSIBLE_LIMIT_ARGS[@]}" -b -m shell \
   -a 'set -eu; T=/root/.local/share/urnetwork-provider/bin/urnet-tools; test -x "$T"; "$T" auto-start on; "$T" start; "$T" status' -f 5
 
