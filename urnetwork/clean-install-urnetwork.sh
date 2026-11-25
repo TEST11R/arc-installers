@@ -4,13 +4,26 @@
 # client/JWT, then uses URnetwork's official installer against local metadata.
 set -eu
 
+# Large provider archives must not be constrained by an inherited shell file-size limit.
+ulimit -f unlimited || {
+    echo "Unable to remove the shell file-size limit; refusing to start the large archive download." >&2
+    exit 1
+}
+
+# Do not rely on the host's potentially tiny /tmp tmpfs.
+TMP_BASE="${URNETWORK_TMPDIR:-/var/tmp/arcum-urnetwork}"
+mkdir -p "$TMP_BASE"
+chmod 700 "$TMP_BASE"
+TMPDIR="$TMP_BASE"
+export TMPDIR
+
 INSTALL_URL="https://raw.githubusercontent.com/urnetwork/connect/main/scripts/Provider_Install_Linux.sh"
 UNINSTALL_URL="https://raw.githubusercontent.com/urnetwork/connect/main/scripts/Provider_Uninstall_Linux.sh"
 RELEASE_METADATA_URL="https://raw.githubusercontent.com/TEST11R/arc-installers/cf77bdcff31e4e8029ac7c1aa9d3d273da9d6233/urnetwork/upstream-api/releases/latest"
 INSTALL_PATH="${URNETWORK_INSTALL_PATH:-$HOME/.local/share/urnetwork-provider}"
 STATE_DIR="$HOME/.urnetwork"
 TIMER_STAMP="$HOME/.local/share/systemd/timers/stamp-urnetwork-update.timer"
-TMP_DIR="$(mktemp -d)"
+TMP_DIR="$(mktemp -d "$TMP_BASE/clean.XXXXXX")"
 TMP_INSTALL="$TMP_DIR/Provider_Install_Linux.sh"
 TMP_UNINSTALL="$TMP_DIR/Provider_Uninstall_Linux.sh"
 TMP_METADATA="$TMP_DIR/release.json"
