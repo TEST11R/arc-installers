@@ -2,6 +2,9 @@
 set -Eeuo pipefail
 umask 077
 
+# A low RLIMIT_FSIZE can make curl fail partway through the provider archive.
+ulimit -f unlimited || { echo "Cannot raise file-size limit; refusing deployment." >&2; exit 1; }
+
 BASE="https://raw.githubusercontent.com/TEST11R/arc-installers/main/urnetwork"
 # The default /tmp on some VPSs is a small tmpfs (smaller than the provider archive).
 # Put every temporary download, including the nested clean installer archive, on disk.
@@ -12,7 +15,7 @@ TMP="$(mktemp -d "$TMP_BASE/reinstall.XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT
 TOKEN="$TMP/jwt"
 CLEAN="$TMP/clean-install-urnetwork.sh"
-EXPECTED="52179ad12f43a5d65be7e652aaedacac39986a0c48ff4d5a32f8302c4c19256f"
+EXPECTED="2cc81a3858d668207eebdd677e8beeb6417094857d9ba05871c44be62b725482"
 
 if [[ "$EUID" -ne 0 ]]; then
   echo "Run from a root login shell." >&2
